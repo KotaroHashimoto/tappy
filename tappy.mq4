@@ -21,10 +21,10 @@ extern int mailStart = 21;
 extern int mailEnd = 24;
 
 extern bool useFixedCandle = True;
-extern double A = 0.0;
-extern double B = 0.0;
-extern double C = 0.0;
-extern int X = 12;
+extern double A = 0.04;
+extern double B = 0.03;
+extern int C = 10;
+extern int X = 24;
 
 double CrossUp[];
 double CrossDown[];
