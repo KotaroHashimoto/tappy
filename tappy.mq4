@@ -23,7 +23,7 @@ extern int mailEnd = 24;
 extern bool useFixedCandle = True;
 extern double A = 0.04;
 extern double B = 0.03;
-extern int C = 10;
+extern double C = 10;
 extern int X = 24;
 
 double CrossUp[];
@@ -50,8 +50,8 @@ bool ind02(int i, bool buy) {
 
   i = (int)MathFloor((double)i / 6.0);
   
-  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, i);
-  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, i + 1);
+  double rci0 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i);
+  double rci1 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -65,9 +65,9 @@ bool ind03(int i, bool buy) {
 
   i = (int)MathFloor((double)i / 6.0);
   
-  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, i);
-  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, i + 1);
-
+  double rci0 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, 52, 0.8, 0.7, True, 0, i);
+  double rci1 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, 52, 0.8, 0.7, True, 0, i + 1);
+  
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
   }
@@ -91,8 +91,8 @@ bool ind04(int i, bool buy) {
 
 bool ind05(int i, bool buy) {
   
-  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, i);
-  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, i + 1);
+  double rci0 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i);
+  double rci1 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -104,8 +104,8 @@ bool ind05(int i, bool buy) {
 
 bool ind06(int i, bool buy) {
   
-  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, i);
-  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, i + 1);
+  double rci0 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, 52, 0.8, 0.7, True, 0, i);
+  double rci1 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, 52, 0.8, 0.7, True, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -134,8 +134,8 @@ bool ind09(int i, bool buy) {
 
   i *= 5;
   
-  bool rci0 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, i);
-  bool rci1 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, i + 1);
+  double rci0 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i);
+  double rci1 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, 52, 0.8, 0.7, True, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0;
@@ -165,13 +165,12 @@ bool ind11(int i, bool buy) {
   double rate = (Ask + Bid) / 2.0;
 
   if(buy) {
-    return rate - iLow(NULL, PERIOD_M1, iLowest(NULL, PERIOD_M1, MODE_LOW, X, i * 5)) + C <= 2 * iATR(NULL, PERIOD_M5, 12, i);
+    return rate - iLow(NULL, PERIOD_M1, iLowest(NULL, PERIOD_M1, MODE_LOW, X, i * 5)) + (C * Point) <= 2 * iATR(NULL, PERIOD_M5, 12, i);
   }
   else {
-    return iHigh(NULL, PERIOD_M1, iHighest(NULL, PERIOD_M1, MODE_HIGH, X, i * 5)) - rate + C <= 2 * iATR(NULL, PERIOD_M5, 12, i);
+    return iHigh(NULL, PERIOD_M1, iHighest(NULL, PERIOD_M1, MODE_HIGH, X, i * 5)) - rate + (C * Point) <= 2 * iATR(NULL, PERIOD_M5, 12, i);
   }
 }
-
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -188,6 +187,8 @@ int OnInit()
 //---
    return(INIT_SUCCEEDED);
   }
+  
+
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
 //+------------------------------------------------------------------+
@@ -242,7 +243,7 @@ int OnCalculate(const int rates_total,
      if((ind[1] && ind[2] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])
      || (ind[2] && ind[3] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])) {
      
-       for(AvgRange = 0.0, counter = (int)useFixedCandle; counter < i + 9; counter++) {
+       for(AvgRange = 0.0, counter = i; counter < i + 9; counter++) {
          AvgRange = AvgRange + MathAbs(High[counter] - Low[counter]);
        }   
        Range = AvgRange / 10.0;
@@ -279,11 +280,11 @@ int OnCalculate(const int rates_total,
        }      
        Print(inds);
      }
-     
+
      if((ind[1] && ind[2] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])
      || (ind[2] && ind[3] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])) {
      
-       for(AvgRange = 0.0, counter = (int)useFixedCandle; counter < i + 9; counter++) {
+       for(AvgRange = 0.0, counter = i; counter < i + 9; counter++) {
          AvgRange = AvgRange + MathAbs(High[counter] - Low[counter]);
        }   
        Range = AvgRange / 10.0;
