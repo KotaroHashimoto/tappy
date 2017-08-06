@@ -31,10 +31,12 @@ double CrossDown[];
 int flagval1 = 0;
 int flagval2 = 0;
 
-bool ind01(bool buy) {
+bool ind01(int i, bool buy) {
 
-  double band0 = iBands(NULL, PERIOD_H1, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, (int)useFixedCandle);
-  double band1 = iBands(NULL, PERIOD_H1, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, (int)useFixedCandle + 1);
+  i = (int)MathFloor((double)i / 6.0);
+
+  double band0 = iBands(NULL, PERIOD_H1, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, i);
+  double band1 = iBands(NULL, PERIOD_H1, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, i + 1);
   
   if(buy) {
     return band1 < band0;
@@ -44,10 +46,12 @@ bool ind01(bool buy) {
   }
 }
 
-bool ind02(bool buy) {
+bool ind02(int i, bool buy) {
+
+  i = (int)MathFloor((double)i / 6.0);
   
-  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, (int)useFixedCandle);
-  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, (int)useFixedCandle + 1);
+  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, i);
+  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 9, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -57,10 +61,12 @@ bool ind02(bool buy) {
   }
 }
 
-bool ind03(bool buy) {
+bool ind03(int i, bool buy) {
+
+  i = (int)MathFloor((double)i / 6.0);
   
-  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, (int)useFixedCandle);
-  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, (int)useFixedCandle + 1);
+  bool rci0 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, i);
+  bool rci1 = iCustom(NULL, PERIOD_H1, "RCI", 36, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -70,10 +76,10 @@ bool ind03(bool buy) {
   }
 }
 
-bool ind04(bool buy) {
+bool ind04(int i, bool buy) {
 
-  double band0 = iBands(NULL, PERIOD_M5, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, (int)useFixedCandle);
-  double band1 = iBands(NULL, PERIOD_M5, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, (int)useFixedCandle + 1);
+  double band0 = iBands(NULL, PERIOD_M5, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, i);
+  double band1 = iBands(NULL, PERIOD_M5, 20, 2.0, 0, PRICE_WEIGHTED, buy ? 1 : 2, i + 1);
   
   if(buy) {
     return band1 < band0;
@@ -83,10 +89,10 @@ bool ind04(bool buy) {
   }
 }
 
-bool ind05(bool buy) {
+bool ind05(int i, bool buy) {
   
-  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, (int)useFixedCandle);
-  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, (int)useFixedCandle + 1);
+  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, i);
+  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 9, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -96,10 +102,10 @@ bool ind05(bool buy) {
   }
 }
 
-bool ind06(bool buy) {
+bool ind06(int i, bool buy) {
   
-  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, (int)useFixedCandle);
-  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, (int)useFixedCandle + 1);
+  bool rci0 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, i);
+  bool rci1 = iCustom(NULL, PERIOD_M5, "RCI", 27, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0 && -0.8 < rci0;
@@ -109,25 +115,27 @@ bool ind06(bool buy) {
   }
 }
 
-bool ind07() {
-  return A <= iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
+bool ind07(int i) {
+  return A <= iATR(NULL, PERIOD_M5, 12, i);
 }
 
-bool ind08() {
+bool ind08(int i) {
 
-  double atr12_0 = iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
-  double atr12_1 = iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle + 1);
+  double atr12_0 = iATR(NULL, PERIOD_M5, 12, i);
+  double atr12_1 = iATR(NULL, PERIOD_M5, 12, i + 1);
 
-  double atr24_0 = iATR(NULL, PERIOD_M5, 24, (int)useFixedCandle);
-  double atr24_1 = iATR(NULL, PERIOD_M5, 24, (int)useFixedCandle + 1);
+  double atr24_0 = iATR(NULL, PERIOD_M5, 24, i);
+  double atr24_1 = iATR(NULL, PERIOD_M5, 24, i + 1);
   
   return atr12_1 < atr12_0 && atr24_1 < atr24_0 && B <= atr12_0;
 }
 
-bool ind09(bool buy) {
+bool ind09(int i, bool buy) {
+
+  i *= 5;
   
-  bool rci0 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, (int)useFixedCandle);
-  bool rci1 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, (int)useFixedCandle + 1);
+  bool rci0 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, i);
+  bool rci1 = iCustom(NULL, PERIOD_M1, "RCI", 9, 0, i + 1);
 
   if(buy) {
     return rci1 < rci0;
@@ -137,9 +145,11 @@ bool ind09(bool buy) {
   }
 }
 
-bool ind10(bool buy) {
+bool ind10(int i, bool buy) {
 
-  double allig = iAlligator(NULL, PERIOD_M1, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_WEIGHTED, 1, (int)useFixedCandle);
+  i *= 5;
+
+  double allig = iAlligator(NULL, PERIOD_M1, 13, 8, 8, 5, 5, 3, MODE_SMMA, PRICE_WEIGHTED, 1, i);
   double rate = (Ask + Bid) / 2.0;
   
   if(buy) {
@@ -150,15 +160,15 @@ bool ind10(bool buy) {
   }
 }
 
-bool ind11(bool buy) {
+bool ind11(int i, bool buy) {
 
   double rate = (Ask + Bid) / 2.0;
 
   if(buy) {
-    return rate - Low[iLowest(NULL, PERIOD_M1, MODE_LOW, X, (int)useFixedCandle)] + C <= 2 * iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
+    return rate - iLow(NULL, PERIOD_M1, iLowest(NULL, PERIOD_M1, MODE_LOW, X, i * 5)) + C <= 2 * iATR(NULL, PERIOD_M5, 12, i);
   }
   else {
-    return High[iHighest(NULL, PERIOD_M1, MODE_HIGH, X, (int)useFixedCandle)] - rate + C <= 2 * iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
+    return iHigh(NULL, PERIOD_M1, iHighest(NULL, PERIOD_M1, MODE_HIGH, X, i * 5)) - rate + C <= 2 * iATR(NULL, PERIOD_M5, 12, i);
   }
 }
 
@@ -209,17 +219,17 @@ int OnCalculate(const int rates_total,
      CrossUp[i] = 0;
      
      bool ind[12];
-     ind[1] = ind01(True);
-     ind[2] = ind02(True);
-     ind[3] = ind03(True);
-     ind[4] = ind04(True);
-     ind[5] = ind05(True);
-     ind[6] = ind06(True);
-     ind[7] = ind07();
-     ind[8] = ind08();
-     ind[9] = ind09(True);
-     ind[10] = ind10(True);
-     ind[11] = ind11(True);
+     ind[1] = ind01(i, True);
+     ind[2] = ind02(i, True);
+     ind[3] = ind03(i, True);
+     ind[4] = ind04(i, True);
+     ind[5] = ind05(i, True);
+     ind[6] = ind06(i, True);
+     ind[7] = ind07(i);
+     ind[8] = ind08(i);
+     ind[9] = ind09(i, True);
+     ind[10] = ind10(i, True);
+     ind[11] = ind11(i, True);
      
      if(i == (int)useFixedCandle) {
        string inds = "Buy signals";
@@ -250,17 +260,17 @@ int OnCalculate(const int rates_total,
        }
      }
      
-     ind[1] = ind01(False);
-     ind[2] = ind02(False);
-     ind[3] = ind03(False);
-     ind[4] = ind04(False);
-     ind[5] = ind05(False);
-     ind[6] = ind06(False);
-     ind[7] = ind07();
-     ind[8] = ind08();
-     ind[9] = ind09(False);
-     ind[10] = ind10(False);
-     ind[11] = ind11(False);
+     ind[1] = ind01(i, False);
+     ind[2] = ind02(i, False);
+     ind[3] = ind03(i, False);
+     ind[4] = ind04(i, False);
+     ind[5] = ind05(i, False);
+     ind[6] = ind06(i, False);
+     ind[7] = ind07(i);
+     ind[8] = ind08(i);
+     ind[9] = ind09(i, False);
+     ind[10] = ind10(i, False);
+     ind[11] = ind11(i, False);
 
      if(i == (int)useFixedCandle) {
        string inds = "Sell signals";
