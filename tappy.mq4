@@ -113,7 +113,7 @@ bool ind07() {
   return A <= iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
 }
 
-bool ind08(bool buy) {
+bool ind08() {
 
   double atr12_0 = iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle);
   double atr12_1 = iATR(NULL, PERIOD_M5, 12, (int)useFixedCandle + 1);
@@ -216,7 +216,7 @@ int OnCalculate(const int rates_total,
      ind[5] = ind05(True);
      ind[6] = ind06(True);
      ind[7] = ind07();
-     ind[8] = ind08(True);
+     ind[8] = ind08();
      ind[9] = ind09(True);
      ind[10] = ind10(True);
      ind[11] = ind11(True);
@@ -257,7 +257,7 @@ int OnCalculate(const int rates_total,
      ind[5] = ind05(False);
      ind[6] = ind06(False);
      ind[7] = ind07();
-     ind[8] = ind08(False);
+     ind[8] = ind08();
      ind[9] = ind09(False);
      ind[10] = ind10(False);
      ind[11] = ind11(False);
