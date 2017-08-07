@@ -28,8 +28,7 @@ extern int X = 24;
 
 double CrossUp[];
 double CrossDown[];
-int flagval1 = 0;
-int flagval2 = 0;
+int lastSignalTime;
 
 bool ind01(int i, bool buy) {
 
@@ -184,6 +183,8 @@ int OnInit()
    SetIndexStyle(1, DRAW_ARROW, EMPTY);
    SetIndexArrow(1, 234);
    SetIndexBuffer(1, CrossDown);
+   
+   lastSignalTime = -1;
 //---
    return(INIT_SUCCEEDED);
   }
@@ -249,11 +250,11 @@ int OnCalculate(const int rates_total,
        Range = AvgRange / 10.0;
      
        CrossUp[i] = High[i] + Range * 0.75;
-       if (i == (int)useFixedCandle && flagval1 == 0) {
-         flagval1 = 1;
-         flagval2 = 0;
+       datetime t = TimeLocal();
+       if (i == (int)useFixedCandle && lastSignalTime != MathFloor((double)TimeMinute(t) / 5.0)) {
+         lastSignalTime = (int)MathFloor((double)TimeMinute(t) / 5.0);
          
-         int h = TimeHour(TimeLocal());
+         int h = TimeHour(t);
          if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
            bool mail = SendMail("Buy " + Symbol(), "Buy " + Symbol() + " at " + DoubleToStr(Ask));
            Print("Buy " + Symbol() + " at " + DoubleToStr(Ask));
@@ -290,9 +291,9 @@ int OnCalculate(const int rates_total,
        Range = AvgRange / 10.0;
 
        CrossDown[i] = Low[i] - Range * 0.75;     
-       if(i == (int)useFixedCandle && flagval2 == 0) {
-         flagval2 = 1;
-         flagval1 = 0;
+       datetime t = TimeLocal();
+       if (i == (int)useFixedCandle && lastSignalTime != MathFloor((double)TimeMinute(t) / 5.0)) {
+         lastSignalTime = (int)MathFloor((double)TimeMinute(t) / 5.0);
          
          int h = TimeHour(TimeLocal());
          if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
