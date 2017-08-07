@@ -23,7 +23,7 @@ extern int mailEnd = 24;
 extern bool useFixedCandle = True;
 extern double A = 0.04;
 extern double B = 0.03;
-extern double C = 10;
+extern int C = 10;
 extern int X = 24;
 
 double CrossUp[];
@@ -254,7 +254,7 @@ int OnCalculate(const int rates_total,
          flagval2 = 0;
          
          int h = TimeHour(TimeLocal());
-         if(mailStart < h && h < mailEnd % 24) {
+         if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
            bool mail = SendMail("Buy " + Symbol(), "Buy " + Symbol() + " at " + DoubleToStr(Ask));
            Print("Buy " + Symbol() + " at " + DoubleToStr(Ask));
          }
@@ -295,7 +295,7 @@ int OnCalculate(const int rates_total,
          flagval1 = 0;
          
          int h = TimeHour(TimeLocal());
-         if(mailStart < h && h < mailEnd % 24) {
+         if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
            bool mail = SendMail("Sell " + Symbol(), "Sell " + Symbol() + " at " + DoubleToStr(Bid));
            Print("Sell " + Symbol() + " at " + DoubleToStr(Bid));
          }
