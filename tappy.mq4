@@ -28,6 +28,7 @@ extern int X = 24;
 
 double CrossUp[];
 double CrossDown[];
+
 int lastSignalTime;
 
 bool ind01(int i, bool buy) {
@@ -188,7 +189,6 @@ int OnInit()
 //---
    return(INIT_SUCCEEDED);
   }
-  
 
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -206,20 +206,31 @@ int OnCalculate(const int rates_total,
   {
 //---
 
-   int i, counter;
    double Range, AvgRange;
-   int counted_bars = IndicatorCounted();
-
-   if(counted_bars < 0)
-     return(-1);
-   else if(counted_bars > 0)
-     counted_bars--;
      
-   for(i = (int)useFixedCandle; i < Bars - counted_bars; i++) {
+   datetime t = TimeLocal();
+   if(lastSignalTime != (int)MathFloor((double)TimeMinute(t) / 5.0)) {
 
-     CrossDown[i] = 0;
-     CrossUp[i] = 0;
+     if(lastSignalTime < 0) {
+       for(int i = 0; i < Bars; i++) {
+         CrossDown[i] = 0.0;
+         CrossUp[i] = 0.0;
+       }   
+     }     
      
+     lastSignalTime = (int)MathFloor((double)TimeMinute(t) / 5.0);     
+     for(int i = Bars - 1; 0 < i; i--) {
+       CrossDown[i] = CrossDown[i-1];
+       CrossUp[i] = CrossUp[i-1];
+     }
+     CrossDown[0] = 0.0;
+     CrossUp[0] = 0.0;
+   }
+     
+   int i = (int)useFixedCandle;
+   
+   if(CrossUp[i] == 0.0) {
+
      bool ind[12];
      ind[1] = ind01(i, True);
      ind[2] = ind02(i, True);
@@ -233,35 +244,33 @@ int OnCalculate(const int rates_total,
      ind[10] = ind10(i, True);
      ind[11] = ind11(i, True);
      
-     if(i == (int)useFixedCandle) {
-       string inds = "Buy signals";
-       for(int j = 1; j < 12; j++) {
-         inds += ", " + IntegerToString(j) + ":" + IntegerToString(ind[j]);
-       }      
-       Print(inds);
-     }
+     string inds = "Buy signals";
+     for(int j = 1; j < 12; j++) {
+       inds += ", " + IntegerToString(j) + ":" + IntegerToString(ind[j]);
+     }      
+     Print(inds);
 
      if((ind[1] && ind[2] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])
      || (ind[2] && ind[3] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])) {
      
+       int counter;
        for(AvgRange = 0.0, counter = i; counter < i + 9; counter++) {
          AvgRange = AvgRange + MathAbs(High[counter] - Low[counter]);
        }   
-       Range = AvgRange / 10.0;
-     
+       Range = AvgRange / 10.0;     
        CrossUp[i] = High[i] + Range * 0.75;
-       datetime t = TimeLocal();
-       if (i == (int)useFixedCandle && lastSignalTime != MathFloor((double)TimeMinute(t) / 5.0)) {
-         lastSignalTime = (int)MathFloor((double)TimeMinute(t) / 5.0);
-         
-         int h = TimeHour(t);
-         if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
-           bool mail = SendMail("Buy " + Symbol(), "Buy " + Symbol() + " at " + DoubleToStr(Ask));
-           Print("Buy " + Symbol() + " at " + DoubleToStr(Ask));
-         }
+
+       int h = TimeHour(t);
+       if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
+         bool mail = SendMail("Buy " + Symbol(), "Buy " + Symbol() + " at " + DoubleToStr(Ask));
+         Print("Buy " + Symbol() + " at " + DoubleToStr(Ask));
        }
      }
-     
+   }
+
+   if(CrossDown[i] == 0.0) {
+    
+      bool ind[12];
      ind[1] = ind01(i, False);
      ind[2] = ind02(i, False);
      ind[3] = ind03(i, False);
@@ -274,33 +283,28 @@ int OnCalculate(const int rates_total,
      ind[10] = ind10(i, False);
      ind[11] = ind11(i, False);
 
-     if(i == (int)useFixedCandle) {
-       string inds = "Sell signals";
-       for(int j = 1; j < 12; j++) {
-         inds += ", " + IntegerToString(j) + ":" + IntegerToString(ind[j]);
-       }      
-       Print(inds);
-     }
+     string inds = "Sell signals";
+     for(int j = 1; j < 12; j++) {
+       inds += ", " + IntegerToString(j) + ":" + IntegerToString(ind[j]);
+     }      
+     Print(inds);
 
      if((ind[1] && ind[2] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])
      || (ind[2] && ind[3] && ind[4] && ind[5] && (ind[7] || ind[8]) && ind[9] && ind[10] && ind[11])) {
      
+       int counter;
        for(AvgRange = 0.0, counter = i; counter < i + 9; counter++) {
          AvgRange = AvgRange + MathAbs(High[counter] - Low[counter]);
        }   
        Range = AvgRange / 10.0;
 
        CrossDown[i] = Low[i] - Range * 0.75;     
-       datetime t = TimeLocal();
-       if (i == (int)useFixedCandle && lastSignalTime != MathFloor((double)TimeMinute(t) / 5.0)) {
-         lastSignalTime = (int)MathFloor((double)TimeMinute(t) / 5.0);
          
-         int h = TimeHour(TimeLocal());
-         if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
-           bool mail = SendMail("Sell " + Symbol(), "Sell " + Symbol() + " at " + DoubleToStr(Bid));
-           Print("Sell " + Symbol() + " at " + DoubleToStr(Bid));
-         }
-       }     
+       int h = TimeHour(TimeLocal());
+       if((mailEnd <= 24 && (mailStart <= h && h < mailEnd)) || (24 < mailEnd && (mailStart <= h || 24 + h < mailEnd))) {
+         bool mail = SendMail("Sell " + Symbol(), "Sell " + Symbol() + " at " + DoubleToStr(Bid));
+         Print("Sell " + Symbol() + " at " + DoubleToStr(Bid));
+       }
      }     
    }
    
